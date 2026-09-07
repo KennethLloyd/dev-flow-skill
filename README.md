@@ -27,16 +27,18 @@ the coordinator.
 
 Install these separately; they are intentionally not bundled here:
 
-- `grill-with-docs`
-- `to-spec`
-- `to-tickets`
-- `implement`
+- [`grill-with-docs`](https://github.com/mattpocock/skills/tree/main/skills/engineering/grill-with-docs)
+- [`to-spec`](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-spec)
+- [`to-tickets`](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets)
+- [`implement`](https://github.com/mattpocock/skills/tree/main/skills/engineering/implement)
 - [`understand-pr`](https://github.com/KennethLloyd/understand-pr-skill)
 - a host-specific implementation handoff satisfying the published contract
 
-The first four skills are external prerequisites. `understand-pr` is a separate
-user-owned skill. Keeping them separate lets each skill be updated, installed,
-and reused independently.
+The first four skills are maintained in
+[Matt Pocock's skills repository](https://github.com/mattpocock/skills). Install
+them from those upstream directories, separately from this skill.
+`understand-pr` is a separate user-owned skill. Keeping them separate lets each
+skill be updated, installed, and reused independently.
 
 ## Installation
 
