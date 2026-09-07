@@ -1,12 +1,21 @@
 # dev-flow
 
-`dev-flow` is a human-gated software development workflow for moving from an
-idea through planning, specifications, minimal tickets, delegated
-implementation, pull-request understanding, and controlled revisions.
+`dev-flow` is the coordination layer for a human-gated software development
+workflow. It uses Pareto planning to reduce the most important uncertainty
+first, compresses the result into the smallest coherent ticket set, and starts
+each ticket with a Quick Read so the human can review the change, rationale,
+architectural impact, important constraint, and done-when state quickly.
 
-The workflow keeps product, architecture, implementation, review, and merge
-authorization with the human while delegating repository-heavy work to a
-configured implementation handoff.
+It then enforces explicit gates between planning, ticket creation,
+implementation, revision, and merge. Approved repository work is delegated to
+a configured implementation handoff, while the coordinator preserves worker
+ownership and automatically routes completed pull requests through
+human-oriented `understand-pr` review before returning control to the user.
+
+That coordination policy is the point of this skill. The prerequisite skills
+provide specialized work; `dev-flow` decides when they run, what must remain a
+human decision, how work is handed off, and how revisions return to the same
+pull request.
 
 ## Design
 
