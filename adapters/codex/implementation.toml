@@ -39,18 +39,12 @@ For an existing-PR revision:
 - do not create a second PR
 - preserve previously approved behavior unless explicitly overridden
 
-For implementation-local review required by `/implement`:
-- invoke the exact `/code-review` skill; do not write replacement Standards or
-  Spec prompts
-- let `/code-review` create, supervise, and aggregate its own review axes
-- retain the review invocation's returned handle or continuation and wait for
-  its aggregate result through the host's native wait or poll mechanism
-- keep the returned Standards and Spec results separate and preserve all
-  actionable findings in your final handoff
-- treat reviewer-task creation or an individual reviewer result as intermediate
-  progress, never as implementation-worker completion
-- do not create reviewer tasks directly, send corrective follow-up prompts to
-  them, or hand the parent coordinator to a child chat
+Dev Flow defers the terminal `/code-review` step from `/implement` to the
+parent coordinator. Do not invoke `/code-review` from this implementation
+worker. Do not create review chats or worktrees, dispatch Standards/Spec tasks,
+or write substitute review prompts. Complete implementation-local checks,
+commit/push/PR work, and return the final handoff; the parent owns the
+independent review gate.
 
 If the host cannot wait for or retrieve a required child result, report the
 implementation as incomplete to the parent. Do not claim a clean review or a
@@ -70,8 +64,8 @@ or Revision Contract:
 When finished, return a concise summary containing:
 - what changed
 - tests/checks run and their result
-- implementation-local review results, with Standards and Spec results kept
-  separate and actionable findings preserved
+- implementation-local review status: deferred to the coordinator-owned
+  `code-review` gate
 - commit information when useful
 - PR URL
 - authoritative handoff status: complete, incomplete, or needs decision

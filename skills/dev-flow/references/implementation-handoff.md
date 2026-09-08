@@ -37,8 +37,8 @@ The handoff worker owns the delegated lifecycle:
 - implement the approved requirements;
 - run appropriate implementation-local tests, checks, and reviews required by
   the implementation workflow;
-- invoke any named review skill required by that workflow exactly, allowing the
-  named skill to own reviewer creation and aggregation;
+- follow the coordinator's review ownership boundary when a named review step
+  is deliberately deferred to a later coordinator-owned gate;
 - remain responsible for any child tasks created by that workflow, including
   delegated reviewers, until their results have been received and reconciled;
 - commit and push the work;
@@ -58,6 +58,10 @@ branch, or PR body to reconstruct what happened.
 The worker does not replace a named review skill with hand-written Standards or
 Spec prompts. If a required review skill cannot be invoked or cannot return its
 aggregate result, the worker reports the handoff as incomplete.
+
+When the coordinator invokes a two-axis review skill, its Standards and Spec
+reviewers are leaf contexts. They return only their axis report to the review
+aggregator and do not invoke another workflow or create further reviewer tasks.
 
 Implementation-local review is not the independent two-axis `code-review` gate.
 The coordinator invokes that gate after this final handoff, in a separate

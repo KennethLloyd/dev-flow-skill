@@ -6,6 +6,7 @@ description: >
   independent two-axis PR review, pull request understanding, and controlled
   revisions. Coordinates grill-with-docs, to-spec, to-tickets, implement,
   code-review, understand-pr, and a configured implementation handoff.
+disable-model-invocation: true
 ---
 
 # Dev Flow
@@ -134,12 +135,12 @@ The worker's implementation-local review does not satisfy the independent
 `code-review` gate. That gate begins only after the worker returns its final
 handoff.
 
-The worker must invoke the exact `implement` skill/workflow. If that workflow
-requires `code-review`, it must invoke the exact `code-review` skill and let
-that skill own its Standards/Spec reviewer composition and aggregation. The
-worker must not recreate those prompts or dispatch review tasks directly. If
-the named skill cannot be invoked, report the incomplete handoff instead of
-substituting a hand-written review.
+The worker must invoke the exact `implement` skill/workflow for implementation.
+Dev Flow deliberately defers `/implement`'s terminal `/code-review` step to the
+coordinator-owned gate below. The worker must not invoke `/code-review`, create
+review chats or worktrees, or write substitute Standards/Spec prompts. It
+returns after implementation checks, commits, pushes, and PR handling; the
+coordinator invokes the exact `/code-review` skill after the final handoff.
 
 ### Supervised delegation
 
@@ -467,7 +468,8 @@ When the user approves implementation:
    full ticket URL;
 5. instruct it to read and obey applicable `AGENTS.md`;
 6. delegate repository exploration, implementation, implementation-local tests
-   and reviews, commits, pushes, and PR handling to the worker;
+   and checks, commits, pushes, and PR handling to the worker; defer the
+   independent `code-review` gate to the coordinator;
 7. wait for the worker's explicit final handoff; follow the Worker ownership and waiting rules while it is active.
 
 Do not implement code concurrently in the coordinator thread.
@@ -481,9 +483,10 @@ When implementation finishes and a PR has been created or updated:
 1. receive the worker's explicit final handoff;
 2. capture the resulting full PR URL;
 3. resolve the PR's base branch or merge-base as the fixed point for review;
-4. invoke the exact `code-review` skill in an independent review context,
-   supplying the full PR URL, fixed point, ticket/spec context, and the latest
-   diff;
+4. invoke the exact `code-review` skill once from the coordinator's review
+   context, supplying the full PR URL, fixed point, ticket/spec context, and
+   the latest diff; do not delegate another task whose job is to invoke
+   `code-review`;
 5. let `code-review` run its separate Standards and Spec axes and aggregate
    their findings before returning control to Dev Flow;
 6. if either axis has an actionable finding, do not invoke `understand-pr`;
@@ -527,6 +530,13 @@ verification and does not satisfy this gate.
 For this coordinator-owned gate, invoke the exact `code-review` skill rather
 than dispatching Standards and Spec prompts directly. The named skill owns
 reviewer creation, supervision, and aggregation.
+
+The Standards and Spec tasks created by `code-review` are leaf reviewers. They
+receive one axis-specific brief, inspect the supplied diff, and return their
+report to the existing `code-review` invocation. They do not invoke `dev-flow`
+or `code-review`, create another worktree or reviewer, or hand work to another
+task. If the host cannot provide leaf reviewer contexts, report the review gate
+as unsupported rather than starting a recursive review chain.
 
 The coordinator must wait for `code-review`'s aggregate result. If the review
 invocation creates separate reviewer tasks, those tasks remain children of the
