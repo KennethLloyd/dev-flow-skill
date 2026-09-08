@@ -49,6 +49,15 @@ silently substituting another worker. Read
 [the implementation handoff contract](references/implementation-handoff.md)
 when this packaged reference is available.
 
+The handoff is a supervised delegation, not a fire-and-forget dispatch. It must
+either return the worker's result directly or return a task/continuation that
+the coordinator can wait for and poll through the host's native mechanism. The
+coordinator retains that returned handle and remains the coordinator in the
+parent task until the worker's authoritative final handoff arrives. A new chat,
+branch, or child worker is an intermediate execution detail, not a completed
+handoff. If the host cannot preserve that linkage and expose a waitable result,
+the implementation handoff is unavailable for this workflow.
+
 Always read and obey applicable `AGENTS.md` instructions.
 
 ---
@@ -99,6 +108,8 @@ The coordinator owns:
 The configured `implementation` handoff is the worker.
 
 The coordinator must not make code changes in parallel with an active implementation worker.
+Delegation does not transfer the coordinator role to the worker or to any child
+task it creates.
 
 Review findings discovered by `code-review` or `understand-pr` never transfer
 implementation ownership to the coordinator.
@@ -122,6 +133,30 @@ This includes:
 The worker's implementation-local review does not satisfy the independent
 `code-review` gate. That gate begins only after the worker returns its final
 handoff.
+
+### Supervised delegation
+
+When invoking the implementation handoff, the coordinator must:
+
+1. invoke the configured worker exactly once for the approved implementation or
+   revision;
+2. retain the returned worker task, continuation, or equivalent completion
+   handle;
+3. remain in the parent coordination task and wait or poll that exact handle
+   until the worker returns an authoritative final handoff;
+4. treat progress updates and child-task creation as intermediate state;
+5. resume Dev Flow only from the worker's final handoff, not from a child chat,
+   branch, PR body, or partial review result.
+
+Any reviewer, browser task, or other child task created by the implementation
+worker remains subordinate to that worker. The worker must remain active until
+it has received and reconciled the child results required by its implementation
+workflow. A child task completing is not worker completion.
+
+The same supervision rule applies when the coordinator invokes `code-review` or
+`understand-pr`: retain the returned task or continuation, wait for the exact
+invocation to return its aggregate result, and do not continue from a detached
+child reviewer.
 
 The coordinator must wait for the worker's final handoff.
 
@@ -418,7 +453,8 @@ Only explicit authorization to start a specific ticket permits implementation.
 When the user approves implementation:
 
 1. resolve the full GitHub ticket URL;
-2. invoke the configured `implementation` handoff;
+2. invoke the configured `implementation` handoff and retain its returned
+   worker task or continuation for supervised waiting;
 3. state that the user explicitly approved implementation;
 4. instruct the worker to use `implement` with the full ticket URL;
 5. instruct it to read and obey applicable `AGENTS.md`;
@@ -441,7 +477,7 @@ When implementation finishes and a PR has been created or updated:
    supplying the full PR URL, fixed point, ticket/spec context, and the latest
    diff;
 5. let `code-review` run its separate Standards and Spec axes and aggregate
-   their findings;
+   their findings before returning control to Dev Flow;
 6. if either axis has an actionable finding, do not invoke `understand-pr`;
    aggregate the findings, create a concise Revision Contract, and stop at
    HUMAN GATE 3;
@@ -479,6 +515,13 @@ or repository before invoking the skill.
 as separate parallel reviewers and remain separate in the aggregated report.
 Any review performed inside the implementation worker is implementation-local
 verification and does not satisfy this gate.
+
+The coordinator must wait for `code-review`'s aggregate result. If the review
+invocation creates separate reviewer tasks, those tasks remain children of the
+review invocation; their individual completion does not authorize
+`understand-pr` or a coordinator conclusion. A review invocation that returns
+only detached child chats without an aggregate result has not completed the
+gate.
 
 The latest PR state must pass both axes before `understand-pr` is invoked.
 
@@ -633,7 +676,8 @@ When the user approves the revision:
    - preserve previously approved behavior unless the Revision Contract overrides it;
    - read and obey applicable `AGENTS.md`;
    - use the `implement` workflow against the updated requirements;
-7. wait for completion.
+7. retain the returned worker task or continuation and wait for its explicit
+   final handoff through the host's native wait or poll mechanism.
 
 When finished:
 

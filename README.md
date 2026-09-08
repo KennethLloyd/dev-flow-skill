@@ -13,6 +13,10 @@ coordinator preserves worker ownership, runs the independent Standards and
 Spec review after the worker hands off, and only then routes a clean pull
 request through human-oriented `understand-pr` review.
 
+The implementation handoff is supervised even when execution is asynchronous:
+the coordinator retains a waitable task or continuation, and a child chat,
+branch, or reviewer result is never treated as the worker's final handoff.
+
 That coordination policy is the point of this skill. The prerequisite skills
 provide specialized work; `dev-flow` decides when they run, what must remain a
 human decision, how work is handed off, and how revisions return to the same
