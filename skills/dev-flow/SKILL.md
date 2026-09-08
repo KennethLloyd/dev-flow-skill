@@ -483,9 +483,9 @@ When implementation finishes and a PR has been created or updated:
 1. receive the worker's explicit final handoff;
 2. capture the resulting full PR URL;
 3. resolve the PR's base branch or merge-base as the fixed point for review;
-4. invoke the exact `code-review` skill once from the coordinator's review
-   context, supplying the full PR URL, fixed point, ticket/spec context, and
-   the latest diff; do not delegate another task whose job is to invoke
+4. invoke the exact `code-review` skill once in the existing coordinator task,
+   supplying the full PR URL, fixed point, ticket/spec context, and the latest
+   diff; do not create a new task or worktree whose job is to invoke
    `code-review`;
 5. let `code-review` run its separate Standards and Spec axes and aggregate
    their findings before returning control to Dev Flow;
@@ -516,11 +516,12 @@ before it reaches `understand-pr` or the user.
 
 This phase is part of the normal Dev Flow lifecycle, not an optional follow-up.
 
-The coordinator must invoke `code-review` in an independent review context
-after every implementation or revision handoff. Supply the full PR URL, the
-original ticket/spec context, and a resolved fixed point: the PR's base branch
-or its merge-base commit. Do not invent a fixed point; resolve it from the PR
-or repository before invoking the skill.
+The coordinator must invoke `code-review` after every implementation or
+revision handoff in the existing coordinator task. “Independent” describes the
+review context and inputs, not a detached coordinator task or worktree. Supply
+the full PR URL, the original ticket/spec context, and a resolved fixed point:
+the PR's base branch or its merge-base commit. Do not invent a fixed point;
+resolve it from the PR or repository before invoking the skill.
 
 `code-review` owns the review mechanics. Its Standards and Spec axes must run
 as separate parallel reviewers and remain separate in the aggregated report.

@@ -95,7 +95,9 @@ intermediate state. Only the worker's explicit final handoff returns control to
 the coordinator.
 
 After the final handoff, the coordinator owns the independent `code-review`
-gate and then `understand-pr` when both review axes are clean.
+gate in the parent coordination task and then `understand-pr` when both review
+axes are clean. The coordinator does not create a detached task or worktree
+whose only purpose is to invoke `code-review`.
 
 The coordinator may reclaim the work only after an explicit inability,
 unfinished handoff, or confirmed runtime failure makes the delegation
