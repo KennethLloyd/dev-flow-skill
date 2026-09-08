@@ -3,9 +3,9 @@ name: dev-flow
 description: >
   Human-gated software development workflow for Pareto planning,
   specification, minimal ticket decomposition, delegated implementation,
-  pull request understanding, and controlled revisions. Coordinates
-  grill-with-docs, to-spec, to-tickets, implement, understand-pr,
-  and a configured implementation handoff.
+  independent two-axis PR review, pull request understanding, and controlled
+  revisions. Coordinates grill-with-docs, to-spec, to-tickets, implement,
+  code-review, understand-pr, and a configured implementation handoff.
 ---
 
 # Dev Flow
@@ -31,6 +31,7 @@ Use the installed specialized skills for their respective jobs rather than reimp
 - `to-spec`
 - `to-tickets`
 - `implement`
+- `code-review`
 - `understand-pr`
 
 When this workflow names a skill, invoke that exact skill.
@@ -91,6 +92,7 @@ The coordinator owns:
 - specifications;
 - ticket planning;
 - human approval gates;
+- independent post-implementation review;
 - PR understanding;
 - revision planning.
 
@@ -98,8 +100,8 @@ The configured `implementation` handoff is the worker.
 
 The coordinator must not make code changes in parallel with an active implementation worker.
 
-Review findings discovered by `understand-pr` never transfer implementation
-ownership to the coordinator.
+Review findings discovered by `code-review` or `understand-pr` never transfer
+implementation ownership to the coordinator.
 
 ### Worker ownership and waiting
 
@@ -112,10 +114,14 @@ This includes:
 - implementation;
 - tests and builds;
 - browser or UI verification;
-- code/spec review;
+- implementation-local verification and reviews required by `implement`;
 - commits and pushes;
 - PR creation or updates;
 - final reporting.
+
+The worker's implementation-local review does not satisfy the independent
+`code-review` gate. That gate begins only after the worker returns its final
+handoff.
 
 The coordinator must wait for the worker's final handoff.
 
@@ -134,7 +140,7 @@ While the worker owns the task, the coordinator must NOT:
 - take over repository work;
 - inspect or modify the worker's branch as a substitute for waiting;
 - rerun the worker's tests, builds, reviews, or verification;
-- invoke replacement implementation or review workers;
+- invoke replacement implementation or independent review workers;
 - create or update the PR on the worker's behalf.
 
 Only reclaim implementation ownership if the worker:
@@ -146,6 +152,10 @@ Only reclaim implementation ownership if the worker:
 
 If recovery is required, return control to the user and explain the situation
 before performing or delegating replacement work.
+
+After the worker's explicit final handoff, implementation ownership returns to
+the coordinator. The coordinator then invokes the independent `code-review`
+gate before invoking `understand-pr`.
 
 ---
 # Resume behavior
@@ -412,7 +422,8 @@ When the user approves implementation:
 3. state that the user explicitly approved implementation;
 4. instruct the worker to use `implement` with the full ticket URL;
 5. instruct it to read and obey applicable `AGENTS.md`;
-6. delegate repository exploration, implementation, tests, reviews, commits, pushes, and PR handling to the worker;
+6. delegate repository exploration, implementation, implementation-local tests
+   and reviews, commits, pushes, and PR handling to the worker;
 7. wait for the worker's explicit final handoff; follow the Worker ownership and waiting rules while it is active.
 
 Do not implement code concurrently in the coordinator thread.
@@ -425,34 +436,85 @@ When implementation finishes and a PR has been created or updated:
 
 1. receive the worker's explicit final handoff;
 2. capture the resulting full PR URL;
-3. do not present the PR as ready for user review yet;
-4. invoke the exact `understand-pr` skill automatically using the full PR URL;
-5. let `understand-pr` complete its human-oriented review workflow;
-6. present the resulting PR understanding to the user;
-7. return control to the user.
+3. resolve the PR's base branch or merge-base as the fixed point for review;
+4. invoke the exact `code-review` skill in an independent review context,
+   supplying the full PR URL, fixed point, ticket/spec context, and the latest
+   diff;
+5. let `code-review` run its separate Standards and Spec axes and aggregate
+   their findings;
+6. if either axis has an actionable finding, do not invoke `understand-pr`;
+   aggregate the findings, create a concise Revision Contract, and stop at
+   HUMAN GATE 3;
+7. if both axes have no actionable findings, invoke the exact `understand-pr`
+   skill automatically using the full PR URL;
+8. let `understand-pr` complete its human-oriented comprehension workflow;
+9. present the resulting PR understanding to the user;
+10. return control to the user.
 
-The user should not need to manually ask to understand the PR after every
-implementation.
+The user should not need to manually ask for either independent review or PR
+understanding after every implementation.
 
 Do not substitute a coordinator-written PR summary for `understand-pr`.
 
 The implementation worker's final report is an implementation handoff, not the
-final human review.
+independent review or final human review.
 
 Do not automatically begin the next ticket.
 
 ---
-# Phase 4 — Automatic pull request understanding
+# Phase 4 — Independent two-axis review
+
+Every completed implementation PR must pass the exact `code-review` skill
+before it reaches `understand-pr` or the user.
+
+This phase is part of the normal Dev Flow lifecycle, not an optional follow-up.
+
+The coordinator must invoke `code-review` in an independent review context
+after every implementation or revision handoff. Supply the full PR URL, the
+original ticket/spec context, and a resolved fixed point: the PR's base branch
+or its merge-base commit. Do not invent a fixed point; resolve it from the PR
+or repository before invoking the skill.
+
+`code-review` owns the review mechanics. Its Standards and Spec axes must run
+as separate parallel reviewers and remain separate in the aggregated report.
+Any review performed inside the implementation worker is implementation-local
+verification and does not satisfy this gate.
+
+The latest PR state must pass both axes before `understand-pr` is invoked.
+
+## Findings from `code-review`
+
+When either axis returns an actionable finding:
+
+1. aggregate and deduplicate the findings without collapsing the Standards and
+   Spec axes;
+2. explain the findings to the user in simplified technical English;
+3. identify whether each finding is a requirement mismatch, correctness defect,
+   architectural concern, maintainability concern, or minor observation;
+4. recommend which findings require revision before merge;
+5. create one concise Revision Contract for the agreed code changes;
+6. STOP at HUMAN GATE 3.
+
+Do not invoke `understand-pr` while actionable independent-review findings
+remain unresolved.
+
+When both axes have no actionable findings, invoke the exact `understand-pr`
+skill automatically using the full PR URL.
+
+---
+
+# Phase 5 — Automatic pull request understanding
 
 Every completed implementation PR must pass through `understand-pr`
-automatically before the coordinator returns the PR to the user.
+automatically after a clean independent two-axis review and before the
+coordinator returns the PR to the user.
 
 This phase is part of the normal Dev Flow lifecycle, not an optional follow-up.
 
 ## Findings from `understand-pr`
 
 `understand-pr` may discover implementation defects, requirement mismatches,
-architectural concerns, or missing acceptance criteria.
+architectural concerns, or missing acceptance criteria while explaining the PR.
 
 These findings are review results only.
 
@@ -575,13 +637,18 @@ When the user approves the revision:
 
 When finished:
 
-- summarize the revision result;
-- return the existing PR URL;
+- receive the worker's explicit final handoff;
+- resolve the existing PR's base branch or merge-base as the fixed point;
+- invoke the independent `code-review` gate again against the latest PR state;
+- if either axis has actionable findings, repeat the Revision Contract cycle;
+- only after both axes are clean, invoke `understand-pr` again;
+- summarize the revision result and return the existing PR URL;
 - return control to the user.
 
 Do not automatically merge.
 
-The updated PR may be reviewed again with `understand-pr`.
+The independent two-axis review is mandatory after every revision. No updated
+PR reaches `understand-pr` until its latest state passes both axes.
 
 Repeat the concern → Revision Contract → approval → implementation cycle as many times as necessary.
 
@@ -693,8 +760,11 @@ Configured `implementation` handoff
 `implement`
 : Drive implementation, verification, and implementation-level review inside the worker.
 
+`code-review`
+: Run the independent parallel Standards and Spec review after every implementation or revision handoff.
+
 `understand-pr`
-: Help the user understand and review the resulting PR.
+: Help the user understand the resulting PR after the independent review is clean.
 
 Do not recreate specialized skill behavior inside `dev-flow` when the specialized skill already owns it.
 
@@ -787,6 +857,8 @@ Idea
 → `implement <full-ticket-url>`  
 → PR  
 → return to coordinator  
+→ independent `code-review` (Standards + Spec) <br>
+→ clean review <br>
 → `understand-pr <full-pr-url>` with the user  
 → merge if explicitly authorized
 
@@ -801,6 +873,8 @@ PR concern
 → original ticket + existing PR + Revision Contract  
 → update SAME PR  
 → return to coordinator  
+→ independent `code-review` again <br>
+→ clean review <br>
 → `understand-pr` again  
 → repeat if necessary  
 → merge if explicitly authorized

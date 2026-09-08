@@ -7,10 +7,11 @@ each ticket with a Quick Read so the human can review the change, rationale,
 architectural impact, important constraint, and done-when state quickly.
 
 It then enforces explicit gates between planning, ticket creation,
-implementation, revision, and merge. Approved repository work is delegated to
-a configured implementation handoff, while the coordinator preserves worker
-ownership and automatically routes completed pull requests through
-human-oriented `understand-pr` review before returning control to the user.
+implementation, independent two-axis review, revision, and merge. Approved
+repository work is delegated to a configured implementation handoff, while the
+coordinator preserves worker ownership, runs the independent Standards and
+Spec review after the worker hands off, and only then routes a clean pull
+request through human-oriented `understand-pr` review.
 
 That coordination policy is the point of this skill. The prerequisite skills
 provide specialized work; `dev-flow` decides when they run, what must remain a
@@ -40,10 +41,11 @@ Install these separately; they are intentionally not bundled here:
 - [`to-spec`](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-spec)
 - [`to-tickets`](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets)
 - [`implement`](https://github.com/mattpocock/skills/tree/main/skills/engineering/implement)
+- [`code-review`](https://github.com/mattpocock/skills/tree/main/skills/engineering/code-review)
 - [`understand-pr`](https://github.com/KennethLloyd/understand-pr-skill)
 - a host-specific implementation handoff satisfying the published contract
 
-The first four skills are maintained in
+The first five skills are maintained in
 [Matt Pocock's skills repository](https://github.com/mattpocock/skills). Install
 them from those upstream directories, separately from this skill.
 `understand-pr` is a separate user-owned skill. Keeping them separate lets each
