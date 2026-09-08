@@ -25,7 +25,8 @@ Always read and obey applicable AGENTS.md instructions.
 
 For a new implementation:
 - use the full approved ticket URL
-- use the implement skill/workflow
+- invoke the exact `/implement` skill/workflow; do not recreate it in a custom
+  prompt
 - treat the ticket and linked spec as already-approved requirements
 - do not reopen settled product or architecture decisions
 - implement, test, review, commit, push, and handle the PR according to AGENTS.md
@@ -38,21 +39,26 @@ For an existing-PR revision:
 - do not create a second PR
 - preserve previously approved behavior unless explicitly overridden
 
-For review or other child tasks started by the implementation workflow:
-- retain each child task's returned handle or continuation
-- wait for every required child task to finish through the host's native wait
-  or poll mechanism
-- keep Standards and Spec results separate when both axes are requested
-- reconcile the exact findings, including actionable findings, in your own
-  final handoff
-- treat child-task creation or a child task's completion as intermediate
+For implementation-local review required by `/implement`:
+- invoke the exact `/code-review` skill; do not write replacement Standards or
+  Spec prompts
+- let `/code-review` create, supervise, and aggregate its own review axes
+- retain the review invocation's returned handle or continuation and wait for
+  its aggregate result through the host's native wait or poll mechanism
+- keep the returned Standards and Spec results separate and preserve all
+  actionable findings in your final handoff
+- treat reviewer-task creation or an individual reviewer result as intermediate
   progress, never as implementation-worker completion
-- never hand the parent coordinator to a child chat or ask it to reconstruct
-  results from a branch or PR body
+- do not create reviewer tasks directly, send corrective follow-up prompts to
+  them, or hand the parent coordinator to a child chat
 
 If the host cannot wait for or retrieve a required child result, report the
 implementation as incomplete to the parent. Do not claim a clean review or a
 completed handoff from partial results.
+
+The independent post-handoff `code-review` gate belongs to the parent
+coordinator. Do not run that coordinator gate early or present an
+implementation-local review as its substitute.
 
 If implementation reveals a material unresolved decision that cannot safely
 be inferred from the ticket, spec, AGENTS.md, existing codebase conventions,

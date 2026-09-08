@@ -134,6 +134,13 @@ The worker's implementation-local review does not satisfy the independent
 `code-review` gate. That gate begins only after the worker returns its final
 handoff.
 
+The worker must invoke the exact `implement` skill/workflow. If that workflow
+requires `code-review`, it must invoke the exact `code-review` skill and let
+that skill own its Standards/Spec reviewer composition and aggregation. The
+worker must not recreate those prompts or dispatch review tasks directly. If
+the named skill cannot be invoked, report the incomplete handoff instead of
+substituting a hand-written review.
+
 ### Supervised delegation
 
 When invoking the implementation handoff, the coordinator must:
@@ -456,7 +463,8 @@ When the user approves implementation:
 2. invoke the configured `implementation` handoff and retain its returned
    worker task or continuation for supervised waiting;
 3. state that the user explicitly approved implementation;
-4. instruct the worker to use `implement` with the full ticket URL;
+4. instruct the worker to invoke the exact `implement` skill/workflow with the
+   full ticket URL;
 5. instruct it to read and obey applicable `AGENTS.md`;
 6. delegate repository exploration, implementation, implementation-local tests
    and reviews, commits, pushes, and PR handling to the worker;
@@ -515,6 +523,10 @@ or repository before invoking the skill.
 as separate parallel reviewers and remain separate in the aggregated report.
 Any review performed inside the implementation worker is implementation-local
 verification and does not satisfy this gate.
+
+For this coordinator-owned gate, invoke the exact `code-review` skill rather
+than dispatching Standards and Spec prompts directly. The named skill owns
+reviewer creation, supervision, and aggregation.
 
 The coordinator must wait for `code-review`'s aggregate result. If the review
 invocation creates separate reviewer tasks, those tasks remain children of the
