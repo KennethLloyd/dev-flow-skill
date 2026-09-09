@@ -44,9 +44,21 @@ skill be installed and updated independently.
 
 ## Install
 
-Install `dev-flow` with the skills installer from this repository, selecting
-`skills/dev-flow`. Then install one host adapter wherever the implementation
-handoff executes. The coordinator and worker may run on different machines.
+Install `dev-flow` globally with the Skills CLI:
+
+```bash
+npx skills add KennethLloyd/dev-flow-skill --skill dev-flow -g -y
+```
+
+Install each prerequisite separately from its upstream repository. For example:
+
+```bash
+npx skills add mattpocock/skills --skill grill-with-docs -g -y
+```
+
+Repeat that command with the other prerequisite skill names listed above. Then
+install one host adapter wherever the implementation handoff executes. The
+coordinator and worker may run on different machines.
 
 The optional Codex adapter is
 [`adapters/codex/implementation.toml`](adapters/codex/implementation.toml).
