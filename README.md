@@ -63,8 +63,8 @@ different machines.
 
 The optional Codex adapter is
 [`adapters/codex/implementation.toml`](adapters/codex/implementation.toml).
-In Codex, Sol Medium coordinates while the adapter configures a dedicated
-Luna XHigh implementation worker. The core skill remains provider-neutral.
+It configures a dedicated implementation worker. The core skill remains
+provider-neutral.
 
 ## Package layout
 

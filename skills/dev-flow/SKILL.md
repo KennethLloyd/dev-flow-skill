@@ -158,11 +158,19 @@ revision. Continue the existing implementation worker and its PR context
 when possible. Supply the original ticket/spec, existing PR URL, approved
 Revision Contract, explicit authorization, applicable `AGENTS.md`, and a
 Quick Resume: what is correct, what changes, likely affected areas, what
-stays unchanged, and focused verification.
+stays unchanged, and focused verification. Keep the Revision Contract focused
+on approved behavior. Before handoff, inspect the PR and relevant repository
+code enough to pass along Implementation Guidance when the solution is clear:
+the expected approach, likely files or symbols, existing patterns to reuse,
+and complexity to avoid or remove.
 
 The worker should investigate affected code and necessary dependencies,
 without repeating broad discovery unless material architectural uncertainty
-appears. It should fix all accepted concerns in one pass, preserve approved
+appears. The Revision Contract is authoritative; Implementation Guidance is
+the recommended technical path. The worker may adjust low-level details when
+repository evidence shows a materially simpler or more correct solution, but
+must return any change to approved product behavior or architecture to the
+coordinator. It should fix all accepted concerns in one pass, preserve approved
 behavior unless changed by the contract, and simplify or replace earlier code
 structure when that yields the cleanest compliant result. It updates the same
 PR. Use a fresh worker only if continuation is unavailable or the worker
