@@ -20,6 +20,11 @@ owns approved repository execution. The user owns product and architecture
 decisions, ticket creation, implementation and revision authorization, and
 the final merge decision.
 
+Prefer the smallest coherent implementation that fully satisfies the approved
+contract. Reuse repository patterns before adding abstractions; generalized
+infrastructure, helper layers, speculative extensibility, and tests must earn
+their place by protecting meaningful behavior or materially improving the work.
+
 Invoke the separately installed `grill-with-docs`, `to-spec`, and `to-tickets`
 skills for their stages, and `understand-pr` for the final human-oriented PR
 explanation. Use each exact skill when its stage applies; report a missing
@@ -104,13 +109,25 @@ ticket, and stop before implementation.
 ### HUMAN GATE 2 — Implementation
 
 Ticket creation does not authorize implementation. After explicit approval to
-start a specific ticket, hand the worker the full ticket URL, approved spec or
-implementation contract when applicable, explicit authorization, and
-applicable `AGENTS.md`. Ask it to implement the approved behavior with the
-smallest clean solution, run appropriate verification, commit and push,
+start a specific ticket, inspect relevant repository areas enough to identify
+the likely implementation path. Hand the worker the full ticket URL, approved
+spec or implementation contract when applicable, explicit authorization, and
+applicable `AGENTS.md`. When the path is reasonably clear, add a concise
+Implementation Guide to the handoff: expected approach, likely files or
+symbols, existing patterns to reuse, scope boundaries, high-value verification,
+and complexity to avoid. Say when a simple local solution is sufficient. Keep
+this technical guidance separate from the approved ticket/spec; transfer
+already-understood reasoning instead of making the worker rediscover it.
+
+Ask the worker to inspect affected code and necessary dependencies, then
+implement the approved behavior, run appropriate verification, commit and push,
 create or update the PR, and return one final handoff with changes, check
-results, useful commit information, and the full PR URL. It must not merge.
-Wait for its final handoff.
+results, useful commit information, and the full PR URL. The guide recommends
+the technical path; the approved contract is authoritative. The worker may
+adjust low-level details when repository evidence shows a materially simpler
+or more correct solution, but must return material changes to approved scope
+or architecture to the coordinator. It must not merge. Wait for its final
+handoff.
 
 ## 5. Coordinator integrated review
 
