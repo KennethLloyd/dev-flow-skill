@@ -1,78 +1,91 @@
 # dev-flow
 
-`dev-flow` is a human-gated development workflow for moving from an idea to a
-reviewable, understandable pull request.
+`dev-flow` is a human-gated development workflow that turns a rough idea into a
+clean, reviewed pull request without letting the implementation agent drive the
+architecture.
 
-## Quick read
+## Why it exists
 
-Use it when a change needs more structure than “implement this”:
+Most agent workflows ask one model to plan, code, review, and explain the work.
 
-- **Pareto planning** resolves the highest-value uncertainty first.
-- **Quick Reads** make plans and tickets easy to scan.
-- **Human gates** keep product, architecture, implementation, revision, and
-  merge decisions with the human.
-- **Delegated implementation** keeps repository-heavy work in a configured
-  worker while the coordinator preserves ownership and waits for its handoff.
-- **Coordinator review** checks the approved behavior, correctness, architecture,
-  simplicity, and meaningful tests in one pass.
-- **Consolidated revisions** return accepted fixes to the same worker and PR.
-- **`understand-pr`** turns the clean PR into a human-oriented reading path.
+`dev-flow` separates those responsibilities:
 
-The normal flow is:
+- **Coordinator as technical lead** — owns planning, architecture, implementation
+  guidance, review, and PR creation.
+- **Worker as implementer** — focuses on repository execution: inspect, code,
+  verify, commit, and push.
+- **Human gates** — the user explicitly approves tickets, implementation,
+  revisions, and merge.
+- **Consolidated revisions** — accepted review findings are grouped into one
+  revision contract instead of endless back-and-forth.
+- **PR after review** — the coordinator reviews the implementation first, then
+  creates the final reviewer-facing PR.
+- **Minimal by default** — prefer the smallest coherent solution and avoid
+  speculative abstractions, unnecessary tests, and over-engineering.
+
+## Flow
 
 ```text
-plan → spec → minimal tickets → implementation approval → delegated implementation
-→ coordinator review → optional consolidated revision → coordinator final review
-→ understand-pr → explicit merge decision
+idea
+→ Pareto planning
+→ spec
+→ minimal tickets
+→ human approval
+→ coordinator implementation design
+→ delegated implementation
+→ coordinator review
+→ optional approved revision
+→ final review
+→ coordinator-created PR
+→ understand-pr
+→ human merge decision
 ```
 
-## Prerequisites
+The core idea is simple:
 
-Install these separately; this repository intentionally does not bundle them:
+```text
+Human decides.
+Coordinator designs and reviews.
+Worker executes.
+```
+
+## Skills used
+
+`dev-flow` orchestrates these separately installed skills:
 
 - [`grill-with-docs`](https://github.com/mattpocock/skills/tree/main/skills/engineering/grill-with-docs)
 - [`to-spec`](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-spec)
 - [`to-tickets`](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-tickets)
 - [`understand-pr`](https://github.com/KennethLloyd/understand-pr-skill)
-- a host-specific implementation handoff satisfying the
-  [published contract](skills/dev-flow/references/implementation-handoff.md)
 
-The first three come from [Matt Pocock's skills repository](https://github.com/mattpocock/skills).
-`understand-pr` is a separate user-owned skill. Keeping them separate lets each
-skill be installed and updated independently. Independent `code-review` can
-still be invoked manually outside Dev Flow.
+It also uses a host-specific implementation worker that follows the published
+[implementation handoff contract](skills/dev-flow/references/implementation-handoff.md).
 
 ## Install
-
-Install `dev-flow` globally with the Skills CLI:
 
 ```bash
 npx skills add KennethLloyd/dev-flow-skill --skill dev-flow -g -y
 ```
 
-Install each prerequisite separately from its upstream repository. For example:
+Install the prerequisite skills separately from their upstream repositories.
 
-```bash
-npx skills add mattpocock/skills --skill grill-with-docs -g -y
+For Codex, an optional worker adapter is included at:
+
+```text
+adapters/codex/implementation.toml
 ```
-
-Repeat that command for `to-spec` and `to-tickets`; install `understand-pr`
-from its linked repository. Then install one host adapter wherever the
-implementation handoff executes. The coordinator and worker may run on
-different machines.
-
-The optional Codex adapter is
-[`adapters/codex/implementation.toml`](adapters/codex/implementation.toml).
-It configures a dedicated implementation worker. The core skill remains
-provider-neutral.
 
 ## Package layout
 
 ```text
 skills/dev-flow/
 ├── SKILL.md
-└── references/implementation-handoff.md
-adapters/codex/implementation.toml
+└── references/
+    └── implementation-handoff.md
+
+adapters/
+└── codex/
+    └── implementation.toml
 ```
 
 ## License
