@@ -1,51 +1,75 @@
 # Implementation handoff contract
 
-`dev-flow` delegates approved repository work through a logical
-`implementation` handoff. The host chooses the worker, model, and transport;
-the coordinator retains a waitable task or continuation and waits for one
-authoritative final result. A detached chat or branch alone is not a handoff.
+This contract defines the host-neutral boundary between the Dev Flow
+coordinator and its implementation worker. `SKILL.md` remains authoritative for
+workflow stages, role responsibilities, and human gates.
 
-For initial implementation, supply the full ticket URL, approved spec or
-implementation contract when applicable, explicit implementation approval,
-and applicable `AGENTS.md`. When the likely path is clear, also supply a
-concise Implementation Guide with the expected approach, likely affected code,
-existing patterns to reuse, scope boundaries, high-value verification, and
-complexity to avoid. Keep this recommended technical path in the handoff,
-separate from the authoritative ticket/spec. For revisions, also supply the
-existing PR URL, approved consolidated Revision Contract, explicit revision
-approval, and a Quick Resume covering what is correct, what changes, likely
-affected areas, what remains unchanged, and focused verification. When the coordinator can
-identify a likely solution from the PR and repository, it also supplies
-Implementation Guidance: expected code approach, likely files or symbols,
-existing patterns to reuse, and complexity to avoid or remove. Keep this
-technical guidance in the handoff, separate from the behavior-focused Revision
-Contract.
+## Transport
 
-The worker reads relevant repository context, implements the approved
-requirements with the smallest clean solution, runs appropriate verification,
-commits and pushes, creates or updates the PR, and returns changes, check
-results, useful commit information, full PR URL, and any unresolved material
-decision in one final handoff. It returns product or architecture decisions
-that cannot safely be inferred to the coordinator. It never merges.
+The host supplies a logical `implementation` handoff and chooses its worker,
+model, and transport. Invoking it must return a waitable task or continuation
+that the coordinator retains until one authoritative final result arrives. A
+detached chat, process, or branch without a waitable continuation is not a
+valid handoff.
 
-For initial work, the worker uses any supplied Implementation Guide to focus
-discovery on affected code and necessary dependencies rather than rediscovering
-an already-understood architecture. It may adjust low-level details when evidence
-shows a materially simpler or more correct solution, but returns material
-changes to approved scope or architecture to the coordinator.
+Resume the same task for an approved revision when possible. Start a new worker
+only when continuation is unavailable or the existing worker cannot continue.
 
-For an approved revision, continue the same worker context when possible. The
-worker focuses on affected code and necessary dependencies, avoids repeated
-broad discovery unless architecture is uncertain, addresses all accepted
-concerns in one pass, and updates the same PR. Preserve approved behavior
-unless the Revision Contract changes it; earlier code structure may be
-simplified or replaced. The worker may adjust guidance when repository evidence
-shows a materially simpler or more correct low-level approach, but returns
-changes to approved product behavior or architecture to the coordinator. Use
-a fresh worker only if continuation is unavailable or the worker cannot
-continue.
+## Initial request
 
-The worker owns execution until its final handoff. The coordinator waits for
-that result, does not duplicate active implementation, and then performs its
-own integrated PR review. Host adapters must preserve this ownership and
-waitable completion boundary.
+Supply:
+
+- the full ticket URL;
+- the approved specification or implementation contract;
+- explicit implementation approval;
+- applicable `AGENTS.md` instructions;
+- the coordinator's Implementation Guide;
+
+Keep the approved contract and Implementation Guide distinct. The contract
+defines required behavior; the guide recommends the technical path.
+
+## Revision request
+
+Supply:
+
+- the original ticket and approved contract;
+- the current implementation branch;
+- the approved consolidated Revision Contract;
+- explicit revision approval;
+- applicable `AGENTS.md` instructions;
+- a Quick Resume covering what is correct, what changes, likely affected
+  areas, what stays unchanged, and focused verification;
+- Implementation Guidance;
+
+The Revision Contract defines required behavior. Implementation Guidance
+recommends the technical path.
+
+## Worker result
+
+The worker completes the approved repository work, verifies it, commits it,
+pushes the branch, and returns one final handoff containing:
+
+- branch name and useful commit information;
+- a concise factual summary of implemented behavior;
+- material deviations from the supplied design or approved scope;
+- verification commands and results;
+- unresolved issues or material decisions.
+
+The worker returns material changes to approved behavior, architecture,
+responsibility boundaries, public contracts, persistence, scope, or major
+abstractions to the coordinator. It creates no pull request and never merges.
+
+The result is complete only when every item above is present or explicitly
+reported as not applicable.
+
+## Ownership boundary
+
+The worker owns active repository execution until its final handoff. During
+that interval, the coordinator waits and preserves the worker's context; it
+does not edit concurrently, duplicate the implementation, or replace the
+worker unless the worker reports that it cannot continue, returns unfinished
+work, or the runtime confirms failure.
+
+After the final handoff, ownership returns to the coordinator for review,
+revision arbitration, and pull-request creation. Host adapters must preserve
+this waitable ownership boundary.
