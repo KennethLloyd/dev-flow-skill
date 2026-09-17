@@ -4,6 +4,8 @@ This contract defines the host-neutral boundary between the Dev Flow
 coordinator and its implementation worker. `SKILL.md` remains authoritative for
 workflow stages, role responsibilities, and human gates.
 
+Applicable AGENTS.md remains authoritative for repository-local conventions, but Dev Flow handoff rules override conflicting delivery mechanics such as PR creation, PR updates, merge behavior, and completion boundaries.
+
 ## Transport
 
 The host supplies a logical `implementation` handoff and chooses its worker,
