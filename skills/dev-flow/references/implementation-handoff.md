@@ -21,8 +21,7 @@ only when continuation is unavailable or the existing worker cannot continue.
 
 Supply:
 
-- the full ticket URL;
-- the approved specification or implementation contract;
+- the approved ticket and any applicable specification or implementation contract;
 - explicit implementation approval;
 - applicable `AGENTS.md` instructions;
 - the coordinator's Implementation Guide;
